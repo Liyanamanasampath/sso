@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)  
 [![Node.js](https://img.shields.io/badge/Node.js-v18-blue.svg)](https://nodejs.org/)  
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green.svg)](https://www.mongodb.com/cloud/atlas)  
-[![Vercel](https://img.shields.io/badge/Vercel-Deployment-purple.svg)](https://vercel.com/)  
+[![Render](https://img.shields.io/badge/Render-Deployment-blue.svg)](https://render.com/)
 
 ---
 
