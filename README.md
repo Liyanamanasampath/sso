@@ -17,7 +17,7 @@ It allows multiple client applications (App A, App B, etc.) to authenticate user
 - Secure JWT-based access & refresh tokens
 - Real-time logout across all apps
 - Scalable session storage using MongoDB (with optional Redis caching)
-- Ready for deployment on cloud platforms like **Vercel**
+- Ready for deployment on cloud platforms like **Render** and url is https://sso-b30s.onrender.com
 
 ---
 
