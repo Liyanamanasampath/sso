@@ -52,6 +52,7 @@ It allows multiple client applications (App A, App B, etc.) to authenticate user
 
 | Endpoint                         | Method | Description |
 |---------------------------------|--------|-------------|
+| `/api/auth/register`                 | POST   | Register user & return user |
 | `/api/auth/login`                 | POST   | Login user & return access + refresh tokens |
 | `/api/auth/refresh`               | POST   | Refresh access token using refresh token |
 | `/api/auth/logout`                | POST   | Revoke all tokens for the user (multi-app logout) |
