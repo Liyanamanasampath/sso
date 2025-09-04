@@ -1,4 +1,5 @@
-const Token = require('../model/token')
+const Token = require('../model/token');
+const { login } = require('./AuthService');
 
 const isAuthorize = async (req, res, next) => {
     try {
@@ -7,7 +8,7 @@ const isAuthorize = async (req, res, next) => {
   
       const token = authHeader.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  
+        console.log(decoded,'decoded');
       const dbToken = await Token.findOne({ token, revoked: false });
       if (!dbToken) throw new createError(401, 'Token revoked or not found');
   

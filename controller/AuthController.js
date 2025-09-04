@@ -1,6 +1,6 @@
-const {authService} = require('../service/AuthService')
+const authService = require('../service/AuthService')
 
-const login = async (req,res) => {
+const login = async (req, res, next) => {
     try {
         const result = await authService.login(req.body)
         res.status(201).json(result)
@@ -9,7 +9,7 @@ const login = async (req,res) => {
     }
 }
 
-const register = async (req,res) => {
+const register = async (req, res, next) => {
     try {
         const result = await authService.register(req.body)
         res.status(201).json(result)
@@ -18,7 +18,7 @@ const register = async (req,res) => {
     }
 }
 
-const refreshToken = async (req,res) => {
+const refreshToken = async (req, res, next) => {
     try {
         const result = await authService.refreshToken(req.body)
         res.status(201).json(result)
@@ -27,7 +27,7 @@ const refreshToken = async (req,res) => {
     }
 }
 
-const validSsoSignIn = async (req,res) => {
+const validSsoSignIn = async (req, res, next) => {
     try {
         const result = await authService.validSsoSignIn(req.body)
         res.status(201).json(result)
@@ -36,9 +36,9 @@ const validSsoSignIn = async (req,res) => {
     }
 }
 
-const logout = async (req,res) => {
+const logout = async (req, res, next) => {
     try {
-        const result = await authService.logout(req.body)
+        const result = await authService.logout(req, res, next)
         res.status(201).json(result)
     } catch (error) {
         next(error);

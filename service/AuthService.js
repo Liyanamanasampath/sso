@@ -3,6 +3,7 @@ const AuthCode = require('../model/authCode')
 const Token = require('../model/token')
 const jwt = require('jsonwebtoken');
 const createError = require('http-errors');
+const mongoose = require('mongoose');
 
 const login = async (data) => {
     try {
@@ -21,9 +22,9 @@ const login = async (data) => {
 
         await Token.create({
             userId: user.id,
-            token: accessToken,
+            token: token,
             type: 'access',
-            expiresAt: new Date(Date.now() + ms(process.env.JWT_EXPIRES_IN)),
+            expiresAt: new Date(Date.now() + 1000),
         });
 
         await Token.create({
@@ -77,9 +78,15 @@ const register = async (body) => {
 
 const refreshToken = async (body) => {
     try {
-        const user = await User.findOne({ refresh_token: body?.refresh_token })
+        const oldRefreshToken = body?.refresh_token;
+        const userToken = await Token.findOne({ token: oldRefreshToken, type: 'refresh' });
+        if (!userToken) {
+            throw new createError(401, 'Invalid refresh token');
+        }
+
+        const user = await User.findById(userToken.userId);
         if (!user) {
-            throw new createError(404, 'user not found')
+            throw new createError(404, 'User not found');
         }
         // const decoded = jwt.verify(refresh_token, process.env.JWT_SECRET); // verify and throw error
         const decoded = jwt.decode(body?.refresh_token);
@@ -94,7 +101,21 @@ const refreshToken = async (body) => {
         );
 
         const token = generateRefreshToken(user.id);
-        await User.findByIdAndUpdate(user.id, { refresh_token: newRefreshToken });
+        await Token.findOneAndDelete({ token: oldRefreshToken, type: 'refresh' });
+
+        await Token.create({
+            userId: user.id,
+            token: token,
+            type: 'refresh',
+            expiresAt: new Date(Date.now() + 1000),
+        });
+
+        await Token.create({
+            userId: user.id,
+            token: newAccessToken,
+            type: 'access',
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        });
 
         return {
             access_token: newAccessToken,
@@ -115,7 +136,7 @@ const refreshToken = async (body) => {
 const validSsoSignIn = async (body) => {
     const { ssoCode, client_id } = body;
 
-    const authCode = await AuthCode.findOne({ code: ssoCode, client_id });
+    const authCode = await AuthCode.findOne({ code: ssoCode });
     if (!authCode) throw new createError(400, "Invalid or expired SSO code");
 
     const user = await User.findById(authCode.userId);
@@ -137,7 +158,7 @@ const validSsoSignIn = async (body) => {
         userId: user.id,
         token: accessToken,
         type: 'access',
-        expiresAt: new Date(Date.now() + ms(process.env.JWT_EXPIRES_IN)),
+        expiresAt: new Date(Date.now() + 1000),
     });
 
     await Token.create({
@@ -159,12 +180,25 @@ const validSsoSignIn = async (body) => {
 };
 
 
-const logout = async (userId) => {
-    await Token.updateMany(
-        { userId },
-        { $set: { revoked: true } }
-    );
-    return { message: "User logged out from all apps" };
+const logout = async (req, res, next) => {
+    try {
+        const authHeader = req.headers['authorization'];
+
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Authorization token missing or invalid' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        await Token.updateMany(
+            { userId : decoded?.id },
+            { $set: { revoked: true } }
+        );
+        return { message: "User logged out from all apps" };
+
+    } catch (error) {
+        throw error;
+    }
 };
 
 module.exports = { login, register, refreshToken, validSsoSignIn, logout }

@@ -7,12 +7,9 @@ const AuthRoute = require('./routes/auth');
 const OauthRoute = require('./routes/oauth'); 
 const app = express();
 dbConnect();
-
-app.use('/auth',AuthRoute);
-app.use('/oauth',OauthRoute)
-
-app.use(bodyParser.json());
-
+app.use(bodyParser.json()); 
+app.use('/api/auth',AuthRoute);
+app.use('/api/oauth',OauthRoute)
 
 
 app.use((err, req, res, next) => {
